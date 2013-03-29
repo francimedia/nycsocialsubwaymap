@@ -6,6 +6,30 @@
 	<link rel="stylesheet" href="./css/style.css">
 	<script type="text/javascript" src="./js/paper.js"></script>
 	<script type="text/javascript" src="./js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="./js/d3.v3.min.js"></script>
+	<script type="text/javascript" src="./js/ShortestPathCalculator.js"></script>
+	<script type="text/javascript" src="./js/ShortestPathUtils.js"></script>
+
+
+</head>
+<body>
+	<canvas id="canvas1" width="1500" height="1500"></canvas> 
+
+	<h1>Dijkstra's Shortest Path Calculator</h1>
+	<h2>An interactive exploration of the famous Dijkstra algorithm</h2>
+
+	<div class="spgraph" id="graph"></div> 
+
+	<div id="distances"></div>
+	<div id="results"></div>
+	<div id="graph" class="spgraph" ></div>
+
+	<div id="distances2"></div>
+	<div id="results2"></div>
+	<div id="graph2" class="spgraph" ></div>
+
+
+
 	<script type="text/paperscript" canvas="canvas1">
 
 		$(function() {
@@ -44,7 +68,11 @@
 							y: 54,
 							e: 1,
 							vi: [0,0],
-							vo: [0,0]
+							vo: [0,0],
+							connections: [
+								['42_ST_ABC', 70],
+								['23_ST_ABC', 100]
+							]
 						},
 						'23_ST_ABC': {
 							t: '23 St',
@@ -52,7 +80,10 @@
 							y: 83,
 							e: 0,
 							vi: [0,0],
-							vo: [90,30]
+							vo: [90,30],
+							connections: [
+								['34_ST_ABC', 70] 
+							]
 						},
 						'14_ST_ABC': {
 							t: '14 St',
@@ -183,23 +214,39 @@
 			var textLayers = [];
 			var connections = [];
 			var nodes = [];
-		
+
+
+			// build nodes index
+			var nodes_index = {};
+			var nodes_reverse_index = {};
+			var i = 0;
+			$.each(subwayLines, function(index, Line) {				
+				$.each(Line.path, function(_index, _point) {
+					if(typeof _point.connections != 'undefined') {
+						nodes_index[i] = _index;
+						nodes_reverse_index[_index] = i
+						i++;
+					}
+				});
+			});
+
+
 			// resize
 			var zoom = 2;
 			$.each(subwayLines, function(index, Line) {				
 				$.each(Line.path, function(_index, _point) {
-					console.log(subwayLines[index]['path'][_index]);
+					// console.log(subwayLines[index]['path'][_index]);
 
 					if(typeof _point.connections != 'undefined') {
 						nodes.push({ 
-							'index': _index,
-							'value': 'a', 
+							'index': nodes_reverse_index[_index],
+							'value': _point.t, 
 							'r': 20
 						});						
 						$.each(_point.connections, function(i, connection) {
 							connections.push({ 
-								source: _index, 
-								target: connection[0], 
+								source: nodes_reverse_index[_index], 
+								target: nodes_reverse_index[connection[0]], 
 								distance: connection[1] 
 							});
 						});
@@ -210,9 +257,20 @@
 				});
 			});
 
+			console.log(nodes_reverse_index);
 			console.log(nodes);
 			console.log(connections);
  
+
+			var sp1 = new ShortestPathCalculator(nodes, connections);
+
+			var route = sp1.findRoute(0,3);
+
+			var result = sp1.formatResult();
+
+			document.getElementById('results').innerHTML = result;
+
+			sp1.drawGraph('graph'); 
 
 			// draw lines
 			$.each(subwayLines, function(index, Line) {
@@ -273,8 +331,6 @@
 
 		});
 	</script> 
-</head>
-<body>
-	<canvas id="canvas1" width="1500" height="1500"></canvas> 
+
 </body>
 </html>
