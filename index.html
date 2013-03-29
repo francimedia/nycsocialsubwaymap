@@ -19,61 +19,81 @@
 							t: '50 St',
 							x: 86,
 							y: 12,
-							e: 0
+							e: 0,
+							vi: [0,0],
+							vo: [0,0]
 						},
 						{
 							t: '42 St',
 							x: 86,
 							y: 30,
-							e: 1
+							e: 1,
+							vi: [0,0],
+							vo: [0,0]
 						},
 						{
 							t: '34 St',
 							x: 86,
 							y: 54,
-							e: 1
+							e: 1,
+							vi: [0,0],
+							vo: [0,0]
 						},
 						{
 							t: '23 St',
 							x: 86,
 							y: 83,
-							e: 0
+							e: 0,
+							vi: [0,0],
+							vo: [90,30]
 						},
 						{
 							t: '14 St',
 							x: 91,
 							y: 107,
-							e: 0
+							e: 0,
+							vi: [0,0],
+							vo: [70,70]
 						},
 						{
 							t: 'W 4 St',
 							x: 153,
 							y: 144,
-							e: 1
+							e: 1,
+							vi: [-100,70],
+							vo: [0,0]
 						},
 						{
 							t: 'Spring St',
 							x: 153,
 							y: 179,
-							e: 0
+							e: 0,
+							vi: [0,0],
+							vo: [0,0]
 						},
 						{
 							t: 'Canal St',
 							x: 153,
 							y: 196,
-							e: 1
+							e: 1,
+							vi: [0,0],
+							vo: [0,0]
 						},
 						{
 							t: 'Chambers St',
 							x: 154,
 							y: 212,
-							e: 1
+							e: 1,
+							vi: [0,0],
+							vo: [90,90]
 						},
 						{
 							t: 'Fulton St',
 							x: 188,
 							y: 257,
-							e: 1
+							e: 1,
+							vi: [0,0],
+							vo: [0,0]
 						}
 					]
 				},
@@ -85,43 +105,57 @@
 							t: '14 St',
 							x: 121,
 							y: 113,
-							e: 1
+							e: 1,
+							vi: [0,0],
+							vo: [0,0]
 						},
 						{
 							t: 'Christopher St',
 							x: 124,
 							y: 141,
-							e: 0
+							e: 0,
+							vi: [0,0],
+							vo: [80,50]
 						},
 						{
 							t: 'Houston St',
 							x: 131,
 							y: 169,
-							e: 0
+							e: 0,
+							vi: [0,0],
+							vo: [0,0]
 						},
 						{
 							t: 'Canal St',
 							x: 141,
 							y: 193,
-							e: 0
+							e: 0,
+							vi: [0,0],
+							vo: [0,0]
 						},
 						{
 							t: 'Franklin St',
 							x: 144,
 							y: 204,
-							e: 0
+							e: 0,
+							vi: [0,0],
+							vo: [0,0]
 						},
 						{
 							t: 'Chambers St',
 							x: 145,
 							y: 214,
-							e: 1
+							e: 1,
+							vi: [0,0],
+							vo: [90,50]
 						},
 						{
 							t: 'World Trade Center',
 							x: 170,
 							y: 240,
-							e: 0
+							e: 0,
+							vi: [0,0],
+							vo: [0,0]
 						}
 					]
 				}
@@ -137,6 +171,10 @@
 				    strokeWidth: 2					
 				}
 			};
+ 
+			var width = view.size.width;
+			
+
 
 			$.each(subwayLines, function(index, Line) {
 				var path = new Path();
@@ -144,17 +182,45 @@
 				path.strokeWidth = 7;
 				path.strokeJoin = 'round';
 				path.strokeCap = 'round';
+				
+				var segments = [];
+				$.each(Line.path, function(_index, _point) {
+
+					var x = 2 * _point.x;
+					var y = 2 * _point.y;
+
+					var vectorIn = new Point({
+					    angle: _point.vi[0],
+					    length: _point.vi[1]
+					});	
+
+					var vectorOut = new Point({
+					    angle: _point.vo[0],
+					    length: _point.vo[1]
+					});		
+								
+					segments.push([
+						[x, y], vectorIn, vectorOut 
+					]); 
+				});
+
+				path.segments = segments;
+				
 				$.each(Line.path, function(index, _point) {
-					var x = 3 * _point.x;
-					var y = 3 * _point.y;
-					path.add(new Point(x, y));
+					var x = 2 * _point.x;
+					var y = 2 * _point.y;
 					var circle = Path.Circle(new Point(x, y), 7);
 					circle.style = stationStyles[_point.e];
 				});
+
 			});
-			
+		
+
 			window._json = project.exportJson();
-			console.log(window._json);
+			// console.log(window._json);
+
+		
+
 		});
 	</script> 
 </head>
