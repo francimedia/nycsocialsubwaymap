@@ -14,24 +14,31 @@
 				'A': {
 					title: 'A Train',
 					color: '#0b64ae',
-					path: [
-						{
+					path: {
+						'50_ST_ABC': {
 							t: '50 St',
 							x: 86,
 							y: 12,
 							e: 0,
 							vi: [0,0],
-							vo: [0,0]
+							vo: [0,0],
+							connections: [
+								['42_ST_ABC', 150]
+							]
 						},
-						{
+						'42_ST_ABC': {
 							t: '42 St',
 							x: 86,
 							y: 30,
 							e: 1,
 							vi: [0,0],
-							vo: [0,0]
+							vo: [0,0],
+							connections: [
+								['50_ST_ABC', 150],
+								['34_ST_ABC', 100]
+							]
 						},
-						{
+						'34_ST_ABC': {
 							t: '34 St',
 							x: 86,
 							y: 54,
@@ -39,7 +46,7 @@
 							vi: [0,0],
 							vo: [0,0]
 						},
-						{
+						'23_ST_ABC': {
 							t: '23 St',
 							x: 86,
 							y: 83,
@@ -47,7 +54,7 @@
 							vi: [0,0],
 							vo: [90,30]
 						},
-						{
+						'14_ST_ABC': {
 							t: '14 St',
 							x: 91,
 							y: 107,
@@ -55,7 +62,7 @@
 							vi: [0,0],
 							vo: [70,70]
 						},
-						{
+						'W4_ST_ABC': {
 							t: 'W 4 St',
 							x: 153,
 							y: 144,
@@ -63,7 +70,7 @@
 							vi: [-100,70],
 							vo: [0,0]
 						},
-						{
+						'SPRING_ST_ABC': {
 							t: 'Spring St',
 							x: 153,
 							y: 179,
@@ -71,7 +78,7 @@
 							vi: [0,0],
 							vo: [0,0]
 						},
-						{
+						'CANAL_ST_ABC': {
 							t: 'Canal St',
 							x: 153,
 							y: 196,
@@ -79,7 +86,7 @@
 							vi: [0,0],
 							vo: [0,0]
 						},
-						{
+						'CHAMBER_ST_ABC': {
 							t: 'Chambers St',
 							x: 154,
 							y: 212,
@@ -87,7 +94,7 @@
 							vi: [0,0],
 							vo: [90,90]
 						},
-						{
+						'FULTON_ST_ABC': {
 							t: 'Fulton St',
 							x: 188,
 							y: 257,
@@ -95,7 +102,7 @@
 							vi: [0,0],
 							vo: [0,0]
 						}
-					]
+					}
 				},
 				'1': {
 					title: '1 Train',
@@ -173,21 +180,50 @@
 			};
  
 			var width = view.size.width;
-			
+			var textLayers = [];
+			var connections = [];
+			var nodes = [];
+		
+			// resize
+			var zoom = 2;
+			$.each(subwayLines, function(index, Line) {				
+				$.each(Line.path, function(_index, _point) {
+					console.log(subwayLines[index]['path'][_index]);
 
+					if(typeof _point.connections != 'undefined') {
+						nodes.push({ 
+							'index': _index,
+							'value': 'a', 
+							'r': 20
+						});						
+						$.each(_point.connections, function(i, connection) {
+							connections.push({ 
+								source: _index, 
+								target: connection[0], 
+								distance: connection[1] 
+							});
+						});
+					}
 
+					subwayLines[index]['path'][_index]['x'] = zoom * _point.x;
+					subwayLines[index]['path'][_index]['y'] = zoom * _point.y;
+				});
+			});
+
+			console.log(nodes);
+			console.log(connections);
+ 
+
+			// draw lines
 			$.each(subwayLines, function(index, Line) {
 				var path = new Path();
 				path.strokeColor = Line.color;
-				path.strokeWidth = 7;
+				path.strokeWidth = zoom * 4;
 				path.strokeJoin = 'round';
 				path.strokeCap = 'round';
 				
 				var segments = [];
 				$.each(Line.path, function(_index, _point) {
-
-					var x = 2 * _point.x;
-					var y = 2 * _point.y;
 
 					var vectorIn = new Point({
 					    angle: _point.vi[0],
@@ -200,26 +236,40 @@
 					});		
 								
 					segments.push([
-						[x, y], vectorIn, vectorOut 
+						[_point.x, _point.y], vectorIn, vectorOut 
 					]); 
 				});
 
 				path.segments = segments;
-				
-				$.each(Line.path, function(index, _point) {
-					var x = 2 * _point.x;
-					var y = 2 * _point.y;
-					var circle = Path.Circle(new Point(x, y), 7);
-					circle.style = stationStyles[_point.e];
-				});
 
 			});
+ 
+			// draw points 		
+			$.each(subwayLines, function(index, Line) {				
+				$.each(Line.path, function(index, _point) {
+					var circle = Path.Circle(new Point(_point.x, _point.y), zoom*4);
+					circle.style = stationStyles[_point.e];
+				});
+			});
+
+ 
+			// draw text					
+			$.each(subwayLines, function(index, Line) {				
+				textLayers[index] = new Layer();	
+				$.each(Line.path, function(index, _point) {
+					var handleInText = new PointText(new Point(_point.x, _point.y) + [zoom*8, zoom*2.3]);
+					handleInText.content = _point.t;
+					handleInText.paragraphStyle.justification = 'left';
+					handleInText.characterStyle.fontSize = zoom*5;
+					handleInText.fillColor = 'black';
+				});
+				// textLayers[index].remove();				
+			});
 		
+			
 
 			window._json = project.exportJson();
-			// console.log(window._json);
-
-		
+			// console.log(window._json);		
 
 		});
 	</script> 
