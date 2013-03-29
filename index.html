@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>NYC Social Subway map</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script type="text/javascript" src="./js/paper.js"></script>
+	<script type="text/javascript" src="./js/jquery-1.9.1.min.js"></script>
+	<script type="text/paperscript" canvas="canvas1">
+
+		$(function() {
+			var path = new Path();
+			path.strokeColor = '#0b64ae';
+			path.strokeWidth = 5;
+			path.strokeJoin = 'round';
+			path.strokeCap = 'round';
+
+
+			var subwayLines = {
+				'A': {
+					title: 'A Train',
+					path: [
+						{
+							t: '50 St',
+							x: 86,
+							y: 12,
+							e: 0
+						},
+						{
+							t: '42 St',
+							x: 86,
+							y: 30,
+							e: 1
+						},
+						{
+							t: '34 St',
+							x: 86,
+							y: 54,
+							e: 1
+						},
+						{
+							t: '23 St',
+							x: 86,
+							y: 83,
+							e: 0
+						},
+						{
+							t: '14 St',
+							x: 91,
+							y: 107,
+							e: 0
+						},
+						{
+							t: 'W 4 St',
+							x: 153,
+							y: 144,
+							e: 1
+						},
+						{
+							t: 'Spring St',
+							x: 153,
+							y: 179,
+							e: 0
+						}
+					]
+				}
+			};
+
+			$.each(subwayLines, function(index, Line) {
+				$.each(Line.path, function(index, _point) {
+					path.add(new Point(_point.x, _point.y));
+
+					if(_point.e == 1) {
+						var circle = new Path.Circle(new Point(_point.x, _point.y), 5);
+						circle.fillColor = 'black';
+
+						var circle = new Path.Circle(new Point(_point.x, _point.y), 4);
+						circle.fillColor = 'white';
+					} else {
+						var circle = new Path.Circle(new Point(_point.x, _point.y), 4);
+						circle.fillColor = 'black';						
+					}
+
+				});
+			});
+			
+			window._json = project.exportJson();
+			console.log(window._json);
+		});
+	</script> 
+</head>
+<body>
+	<canvas id="canvas1" width="500" height="500"></canvas> 
+</body>
+</html>
