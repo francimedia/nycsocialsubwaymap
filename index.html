@@ -9,16 +9,11 @@
 	<script type="text/paperscript" canvas="canvas1">
 
 		$(function() {
-			var path = new Path();
-			path.strokeColor = '#0b64ae';
-			path.strokeWidth = 5;
-			path.strokeJoin = 'round';
-			path.strokeCap = 'round';
-
 
 			var subwayLines = {
 				'A': {
 					title: 'A Train',
+					color: '#0b64ae',
 					path: [
 						{
 							t: '50 St',
@@ -61,26 +56,100 @@
 							x: 153,
 							y: 179,
 							e: 0
+						},
+						{
+							t: 'Canal St',
+							x: 153,
+							y: 196,
+							e: 1
+						},
+						{
+							t: 'Chambers St',
+							x: 154,
+							y: 212,
+							e: 1
+						},
+						{
+							t: 'Fulton St',
+							x: 188,
+							y: 257,
+							e: 1
+						}
+					]
+				},
+				'1': {
+					title: '1 Train',
+					color: '#f03643',
+					path: [
+						{
+							t: '14 St',
+							x: 121,
+							y: 113,
+							e: 1
+						},
+						{
+							t: 'Christopher St',
+							x: 124,
+							y: 141,
+							e: 0
+						},
+						{
+							t: 'Houston St',
+							x: 131,
+							y: 169,
+							e: 0
+						},
+						{
+							t: 'Canal St',
+							x: 141,
+							y: 193,
+							e: 0
+						},
+						{
+							t: 'Franklin St',
+							x: 144,
+							y: 204,
+							e: 0
+						},
+						{
+							t: 'Chambers St',
+							x: 145,
+							y: 214,
+							e: 1
+						},
+						{
+							t: 'World Trade Center',
+							x: 170,
+							y: 240,
+							e: 0
 						}
 					]
 				}
 			};
 
+			var stationStyles = {
+				0: {
+					fillColor: 'black'				
+				},
+				1: {
+				    fillColor: 'white',
+				    strokeColor: 'black',
+				    strokeWidth: 2					
+				}
+			};
+
 			$.each(subwayLines, function(index, Line) {
+				var path = new Path();
+				path.strokeColor = Line.color;
+				path.strokeWidth = 7;
+				path.strokeJoin = 'round';
+				path.strokeCap = 'round';
 				$.each(Line.path, function(index, _point) {
-					path.add(new Point(_point.x, _point.y));
-
-					if(_point.e == 1) {
-						var circle = new Path.Circle(new Point(_point.x, _point.y), 5);
-						circle.fillColor = 'black';
-
-						var circle = new Path.Circle(new Point(_point.x, _point.y), 4);
-						circle.fillColor = 'white';
-					} else {
-						var circle = new Path.Circle(new Point(_point.x, _point.y), 4);
-						circle.fillColor = 'black';						
-					}
-
+					var x = 3 * _point.x;
+					var y = 3 * _point.y;
+					path.add(new Point(x, y));
+					var circle = Path.Circle(new Point(x, y), 7);
+					circle.style = stationStyles[_point.e];
 				});
 			});
 			
@@ -90,6 +159,6 @@
 	</script> 
 </head>
 <body>
-	<canvas id="canvas1" width="500" height="500"></canvas> 
+	<canvas id="canvas1" width="1500" height="1500"></canvas> 
 </body>
 </html>
